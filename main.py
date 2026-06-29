@@ -9,7 +9,7 @@ Orchestre les 8 agents CrewAI en Process.sequential :
 4. Construit et exécute le Crew CrewAI
 5. Affiche le résultat final dans les logs
 
-Déclenché chaque lundi 8h UTC par .github/workflows/agence.yml, ou
+Déclenché chaque lundi 6h heure de Paris (4h UTC) par .github/workflows/agence.yml, ou
 manuellement via `python main.py` ou `workflow_dispatch` sur GitHub Actions.
 """
 
@@ -185,7 +185,7 @@ if __name__ == "__main__":
 #                                  dossier précis.
 #
 # Une fois les secrets configurés, le workflow .github/workflows/agence.yml
-# s'exécute automatiquement chaque lundi à 8h UTC, et peut aussi être
+# s'exécute automatiquement chaque lundi à 6h heure de Paris (4h UTC), et peut aussi être
 # déclenché manuellement depuis l'onglet "Actions" du dépôt GitHub grâce à
 # `workflow_dispatch` (bouton "Run workflow"), sans attendre le lundi.
 # ----------------------------------------------------------------------

@@ -194,7 +194,7 @@ Le pipeline complet s'exécute : sélection des produits, recettes, rédaction, 
 
 ## Fonctionnement hebdomadaire
 
-Chaque lundi à 8h UTC (`cron: '0 8 * * 1'`), GitHub Actions déclenche automatiquement `main.py` qui :
+Chaque lundi à 6h heure de Paris (`cron: '0 4 * * 1'` en UTC), GitHub Actions déclenche automatiquement `main.py` qui :
 
 1. Sélectionne les 2 produits vedettes de la semaine selon le mois en cours
 2. Génère 2 recettes créatives inédites

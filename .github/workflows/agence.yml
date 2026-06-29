@@ -1,10 +1,13 @@
 # Workflow GitHub Actions — déclenche le pipeline hebdomadaire de l'agence
-# chaque lundi à 8h UTC, ou manuellement via le bouton "Run workflow".
+# chaque lundi à 6h heure de Paris, ou manuellement via le bouton "Run
+# workflow". Le cron GitHub Actions tourne en UTC : 4h UTC = 6h à Paris en
+# heure d'été (UTC+2, mars-octobre) mais 7h en heure d'hiver (UTC+1,
+# octobre-mars) faute de cron "timezone-aware".
 name: Agence Instagram — Lundi matin
 
 on:
   schedule:
-    - cron: '0 8 * * 1'
+    - cron: '0 4 * * 1'
   workflow_dispatch:        # déclenchement manuel possible
 
 jobs:
