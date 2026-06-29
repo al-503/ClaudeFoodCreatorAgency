@@ -1,0 +1,39 @@
+# Workflow GitHub Actions — déclenche le pipeline hebdomadaire de l'agence
+# chaque lundi à 8h UTC, ou manuellement via le bouton "Run workflow".
+name: Agence Instagram — Lundi matin
+
+on:
+  schedule:
+    - cron: '0 8 * * 1'
+  workflow_dispatch:        # déclenchement manuel possible
+
+jobs:
+  run-agence:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install dependencies
+        run: |
+          pip install -r requirements.txt
+          playwright install chromium
+      - name: Run pipeline
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+          EMAIL_SENDER: ${{ secrets.EMAIL_SENDER }}
+          EMAIL_RECEIVER: ${{ secrets.EMAIL_RECEIVER }}
+          EMAIL_PASSWORD: ${{ secrets.EMAIL_PASSWORD }}
+          # Token OAuth2 généré une seule fois en local via
+          # `python autoriser_google_drive.py` (contourne le blocage de
+          # certaines politiques d'organisation Google Cloud sur la
+          # création de clés de compte de service).
+          GOOGLE_OAUTH_TOKEN_JSON: ${{ secrets.GOOGLE_OAUTH_TOKEN_JSON }}
+          # Optionnel : sous le scope drive.file, le dossier racine
+          # "AgenceInstagram" est retrouvé ou créé automatiquement par
+          # tools/drive.py. Ne définir ce secret que pour forcer un
+          # dossier précis.
+          GOOGLE_DRIVE_FOLDER_ID: ${{ secrets.GOOGLE_DRIVE_FOLDER_ID }}
+        run: python main.py
