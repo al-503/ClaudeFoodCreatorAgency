@@ -19,5 +19,12 @@
       "courgette",
       "framboise"
     ]
+  },
+  {
+    "semaine": "06/07/2026",
+    "produits": [
+      "melon",
+      "haricot"
+    ]
   }
 ]
