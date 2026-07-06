@@ -64,7 +64,7 @@ NOMS_CAROUSELS = [
 ]
 
 
-def creer_taches(produits_disponibles: dict, date_lundi: str) -> list:
+def creer_taches(produits_disponibles: dict, date_lundi: str, historique_produits: list = None) -> list:
     """
     Construit la liste ordonnée des 11 tâches de la semaine (8 tâches
     "métier" historiques, sauf que la génération des slides est éclatée en
@@ -76,7 +76,20 @@ def creer_taches(produits_disponibles: dict, date_lundi: str) -> list:
             description de la tâche 1 pour que l'agent choisisse parmi eux.
         date_lundi: date du lundi de la semaine en cours, format "JJ/MM/AAAA",
             utilisée dans le planning et l'email final.
+        historique_produits: liste des dernières semaines {semaine, produits},
+            transmise à l'agent Saisonnalité pour éviter les répétitions.
     """
+    historique_produits = historique_produits or []
+    bloc_historique = ""
+    if historique_produits:
+        lignes = "\n".join(
+            f"  - Semaine du {e['semaine']} : {', '.join(e['produits'])}"
+            for e in historique_produits
+        )
+        bloc_historique = (
+            f"\n\nProduits déjà publiés ces dernières semaines (à éviter "
+            f"absolument pour varier le contenu) :\n{lignes}"
+        )
 
     # ------------------------------------------------------------------
     # Tâche 1 — Saisonnalité
@@ -84,7 +97,8 @@ def creer_taches(produits_disponibles: dict, date_lundi: str) -> list:
     tache_saisonnalite = Task(
         description=(
             "Voici les produits actuellement en pleine saison en France "
-            f"ce mois-ci : {json.dumps(produits_disponibles, ensure_ascii=False)}\n\n"
+            f"ce mois-ci : {json.dumps(produits_disponibles, ensure_ascii=False)}"
+            f"{bloc_historique}\n\n"
             "Choisis exactement 2 produits vedettes parmi cette liste, en "
             "suivant scrupuleusement tes instructions. Pour chaque recette "
             "emblématique (fournie seulement par son nom et sa description, "

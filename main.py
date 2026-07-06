@@ -13,7 +13,9 @@ Déclenché chaque lundi 6h heure de Paris (4h UTC) par .github/workflows/agence
 manuellement via `python main.py` ou `workflow_dispatch` sur GitHub Actions.
 """
 
+import json
 import os
+import re
 import sys
 from datetime import date
 
@@ -26,6 +28,42 @@ from utils import (
     chemin_dossier_semaine,
     assurer_dossier,
 )
+
+FICHIER_HISTORIQUE = "historique_produits.json"
+NB_SEMAINES_HISTORIQUE = 8  # fenêtre transmise à l'agent Saisonnalité
+
+
+def charger_historique() -> list:
+    """Retourne la liste des entrées {semaine, produits} déjà publiées."""
+    if not os.path.exists(FICHIER_HISTORIQUE):
+        return []
+    with open(FICHIER_HISTORIQUE, encoding="utf-8") as f:
+        return json.load(f)
+
+
+def extraire_produits_choisis(texte: str, produits_disponibles: dict) -> list:
+    """
+    Cherche dans le texte de sortie de l'Agent Saisonnalité les noms de
+    produits (clés de produits_disponibles) qui y apparaissent, et retourne
+    les deux premiers trouvés — suffisant pour mettre à jour l'historique.
+    """
+    trouves = []
+    for nom in produits_disponibles:
+        motif = nom.replace("_", r"[\s_-]?")
+        if re.search(rf"\b{motif}\b", texte, re.IGNORECASE) and nom not in trouves:
+            trouves.append(nom)
+        if len(trouves) == 2:
+            break
+    return trouves
+
+
+def sauvegarder_historique(historique: list, date_lundi: str, nouveaux_produits: list) -> None:
+    """Ajoute la semaine courante à l'historique et réécrit le fichier."""
+    if not nouveaux_produits:
+        return
+    historique.append({"semaine": date_lundi, "produits": nouveaux_produits})
+    with open(FICHIER_HISTORIQUE, "w", encoding="utf-8") as f:
+        json.dump(historique, f, ensure_ascii=False, indent=2)
 
 
 def preparer_arborescence_locale(dossier_semaine: str) -> None:
@@ -104,9 +142,13 @@ def main() -> None:
         )
         sys.exit(1)
 
+    historique = charger_historique()
+    semaines_recentes = historique[-NB_SEMAINES_HISTORIQUE:]
+
     taches = creer_taches(
         produits_disponibles=produits_disponibles,
         date_lundi=lundi.strftime("%d/%m/%Y"),
+        historique_produits=semaines_recentes,
     )
 
     equipe = Crew(
@@ -130,6 +172,15 @@ def main() -> None:
         resultat = equipe.kickoff()
         print("=== Pipeline terminé avec succès ===")
         print(resultat)
+
+        # Mise à jour de l'historique produits pour éviter les répétitions
+        # la semaine suivante. On cherche les noms de produits dans la sortie
+        # de la première tâche (Agent Saisonnalité).
+        texte_saisonnalite = resultat.tasks_output[0].raw if resultat.tasks_output else ""
+        produits_choisis = extraire_produits_choisis(texte_saisonnalite, produits_disponibles)
+        sauvegarder_historique(historique, lundi.strftime("%d/%m/%Y"), produits_choisis)
+        if produits_choisis:
+            print(f"Historique mis à jour : {produits_choisis}")
 
         usage = equipe.usage_metrics
         if usage:
