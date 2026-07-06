@@ -132,6 +132,22 @@ def _ajouter_a_liste_courses(lignes: list, nouveau_fichier: bool) -> None:
             f.write(f"- {ligne}\n")
 
 
+def sauvegarder_tous_les_ingredients(task_output) -> None:
+    """
+    Callback de `tache_cuisinier` (voir tasks.py) : extrait TOUS les blocs
+    '**Ingrédients :**' présents dans la sortie (recettes classiques ET
+    créatives des 2 produits) et (re)crée `liste_courses.md` depuis zéro.
+    """
+    lignes = _extraire_lignes_ingredients(task_output.raw)
+    if not lignes:
+        print(
+            "AVERTISSEMENT post-traitement : aucun bloc '**Ingrédients :**' "
+            "trouvé dans la sortie de l'Agent Cuisinier Saisonnier — liste "
+            "de courses non générée."
+        )
+    _ajouter_a_liste_courses(lignes, nouveau_fichier=True)
+
+
 def sauvegarder_ingredients_classiques(task_output) -> None:
     """
     Callback de `tache_saisonnalite` (voir tasks.py) : extrait les

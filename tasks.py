@@ -6,41 +6,27 @@ Chaque tâche est liée à son agent (voir agents.py) et reçoit en `context`
 les tâches précédentes dont elle dépend, afin que CrewAI propage
 automatiquement leurs sorties dans le contexte du LLM.
 
-La fonction `creer_taches` est appelée depuis main.py avec les données
-dynamiques de la semaine (produits disponibles selon le mois, date du
-lundi), car ces informations ne sont connues qu'à l'exécution.
+La fonction `creer_taches` est appelée depuis main.py avec le mois en cours
+et la date du lundi — le choix des produits de saison est délégué à l'Agent
+Cuisinier Saisonnier (tâche 1), qui n'a plus besoin de saison_data.py.
 
-Ordre d'exécution : la génération des photos d'ingrédients (Agent 6) a été
-déplacée avant la génération des carousels (Agent 4), pour que les photos
-existent déjà sur disque quand les slides 1-3 de chaque carousel en ont
-besoin comme fond (voir tools/visuels.py::generer_slide_png).
+Ordre d'exécution : la génération des photos d'ingrédients (tâche 3) a été
+placée avant la génération des carousels (tâches 4a-4d), pour que les photos
+existent déjà sur disque quand les slides 1-3 en ont besoin comme fond.
 
-Deux optimisations de coût (voir CHANGELOG mental, pas de fichier dédié) :
-- La sauvegarde des légendes/briefs n'est plus une tâche LLM à part avec
-  appel d'outil (l'agent devait retaper un texte déjà généré — payé deux
-  fois en tokens de sortie). C'est maintenant un callback Python
-  (tools/post_traitement.py) attaché directement aux tâches de rédaction
-  concernées, qui découpe le texte déjà produit sans aucun appel LLM
-  supplémentaire.
-- La génération des 24 slides n'est plus une seule tâche (CrewAI réenvoie
-  tout l'historique de la tâche à chaque appel d'outil, donc une croissance
-  qui était quadratique sur 24 étapes) mais 4 tâches d'une carousel chacune
-  (6 étapes), ce qui réduit nettement le volume total de contexte réenvoyé.
-
-La liste de courses (legendes_et_briefs/liste_courses.md) suit le même
-principe que les légendes/briefs : un callback Python (sans appel LLM)
-extrait les blocs '**Ingrédients :**' déjà présents dans les sorties de
-l'Agent Saisonnalité (recettes classiques) et de l'Agent Cuisinier
-(recettes créatives) et les concatène en une liste brute, non triée — le
-tri par rayon est laissé au coach.
+Optimisations de coût :
+- L'Agent Cuisinier Saisonnier remplace deux agents séparés (Saisonnalité +
+  Cuisinier) : une seule tâche génère fiches produits + recettes classiques
+  + recettes créatives, sans passer par saison_data.py.
+- Sauvegarde légendes/briefs/liste de courses via callbacks Python (zéro
+  coût LLM supplémentaire).
+- Slides éclatées en 4 tâches d'une carousel chacune (coût quadratique
+  évité vs une seule tâche de 24 appels d'outil).
 """
-
-import json
 
 from crewai import Task
 
 from agents import (
-    agent_saisonnalite,
     agent_cuisinier,
     agent_redaction,
     agent_design_slides,
@@ -52,8 +38,7 @@ from agents import (
 from tools.post_traitement import (
     sauvegarder_legendes,
     sauvegarder_briefs,
-    sauvegarder_ingredients_classiques,
-    sauvegarder_ingredients_creatifs,
+    sauvegarder_tous_les_ingredients,
 )
 
 NOMS_CAROUSELS = [
@@ -63,23 +48,29 @@ NOMS_CAROUSELS = [
     "produit2_recette_creative",
 ]
 
+MOIS_FR = [
+    "janvier", "février", "mars", "avril", "mai", "juin",
+    "juillet", "août", "septembre", "octobre", "novembre", "décembre",
+]
 
-def creer_taches(produits_disponibles: dict, date_lundi: str, historique_produits: list = None) -> list:
+
+def creer_taches(mois: int, date_lundi: str, historique_produits: list = None) -> list:
     """
-    Construit la liste ordonnée des 11 tâches de la semaine (8 tâches
-    "métier" historiques, sauf que la génération des slides est éclatée en
-    4 tâches — une par carousel — au lieu d'une seule).
+    Construit la liste ordonnée des 10 tâches de la semaine.
 
     Args:
-        produits_disponibles: dict des produits en pleine saison ce mois-ci
-            (sortie de `saison_data.produits_du_mois`), injecté dans la
-            description de la tâche 1 pour que l'agent choisisse parmi eux.
+        mois: numéro du mois en cours (1=janvier … 12=décembre), utilisé
+            pour que l'Agent Cuisinier Saisonnier sache quels produits sont
+            de saison sans passer par saison_data.py.
         date_lundi: date du lundi de la semaine en cours, format "JJ/MM/AAAA",
             utilisée dans le planning et l'email final.
         historique_produits: liste des dernières semaines {semaine, produits},
-            transmise à l'agent Saisonnalité pour éviter les répétitions.
+            transmise à l'agent pour éviter les répétitions.
     """
     historique_produits = historique_produits or []
+    mois_nom = MOIS_FR[mois - 1]
+    annee = date_lundi.split("/")[2]
+
     bloc_historique = ""
     if historique_produits:
         lignes = "\n".join(
@@ -87,77 +78,46 @@ def creer_taches(produits_disponibles: dict, date_lundi: str, historique_produit
             for e in historique_produits
         )
         bloc_historique = (
-            f"\n\nProduits déjà publiés ces dernières semaines (à éviter "
-            f"absolument pour varier le contenu) :\n{lignes}"
+            f"\n\nProduits déjà publiés ces dernières semaines "
+            f"(à éviter absolument pour varier le contenu) :\n{lignes}"
         )
 
     # ------------------------------------------------------------------
-    # Tâche 1 — Saisonnalité
-    # ------------------------------------------------------------------
-    tache_saisonnalite = Task(
-        description=(
-            "Voici les produits actuellement en pleine saison en France "
-            f"ce mois-ci : {json.dumps(produits_disponibles, ensure_ascii=False)}"
-            f"{bloc_historique}\n\n"
-            "Choisis exactement 2 produits vedettes parmi cette liste, en "
-            "suivant scrupuleusement tes instructions. Pour chaque recette "
-            "emblématique (fournie seulement par son nom et sa description, "
-            "sans ingrédients), ajoute de ta propre connaissance culinaire "
-            "la liste des ingrédients avec quantités pour 4 personnes, "
-            "précédée EXACTEMENT de l'étiquette '**Ingrédients :**' sur sa "
-            "propre ligne puis d'une liste à puces (une ligne par "
-            "ingrédient, format '- quantité ingrédient'). Cette étiquette "
-            "exacte est lue automatiquement par un programme pour "
-            "construire la liste de courses de la semaine : un format qui "
-            "diffère fait échouer cette sauvegarde automatique."
-        ),
-        expected_output=(
-            "Les fiches complètes des 2 produits vedettes (PRODUIT 1 et "
-            "PRODUIT 2), chacune avec saison, variétés, origine, "
-            "nutrition, conservation, anecdote historique, recette "
-            "emblématique (incluant son bloc '**Ingrédients :**' avec "
-            "quantités), accords suggérés, plus une courte justification "
-            "du choix."
-        ),
-        agent=agent_saisonnalite,
-        callback=sauvegarder_ingredients_classiques,
-    )
-
-    # ------------------------------------------------------------------
-    # Tâche 2 — Cuisinier Créatif
+    # Tâche 1 — Chef Cuisinier Saisonnier
+    # Remplace les deux anciennes tâches Saisonnalité + Cuisinier.
     # ------------------------------------------------------------------
     tache_cuisinier = Task(
         description=(
-            "À partir des 2 produits vedettes choisis, invente une recette "
-            "créative originale par produit, en respectant strictement tes "
-            "règles de chef : jamais la recette emblématique classique, "
-            "jamais une recette déjà inventée pour ce produit, maximum 8 "
-            "ingrédients, maximum 30 minutes, association inattendue mais "
-            "cohérente. Précède la liste d'ingrédients de chaque recette "
-            "EXACTEMENT de l'étiquette '**Ingrédients :**' sur sa propre "
-            "ligne, suivie d'une liste à puces avec quantités pour 4 "
-            "personnes (format '- quantité ingrédient') — cette étiquette "
-            "exacte est lue automatiquement par un programme pour "
-            "construire la liste de courses de la semaine : un format qui "
-            "diffère fait échouer cette sauvegarde automatique."
+            f"Nous sommes au mois de {mois_nom} {annee} en France."
+            f"{bloc_historique}\n\n"
+            "Choisis 2 produits de saison, génère leurs fiches complètes "
+            "(saison, variétés, origine, nutrition, conservation, anecdote "
+            "historique, accords suggérés), leur recette classique ET leur "
+            "recette créative, en suivant scrupuleusement tes instructions. "
+            "Pour chaque liste d'ingrédients (classique ET créative), utilise "
+            "EXACTEMENT l'étiquette '**Ingrédients :**' sur sa propre ligne "
+            "suivie d'une liste à puces '- quantité ingrédient' pour 4 "
+            "personnes — lue automatiquement pour la liste de courses. "
+            "Commence ta réponse par la section '## PRODUITS CHOISIS' avec "
+            "les noms exacts des 2 produits choisis — lue automatiquement "
+            "pour mettre à jour l'historique."
         ),
         expected_output=(
-            "2 fiches recette créative complètes (RECETTE PRODUIT 1 et "
-            "RECETTE PRODUIT 2) : nom instagrammable, concept, bloc "
-            "'**Ingrédients :**' avec quantités, étapes numérotées, tip du "
-            "chef, variante."
+            "Section '## PRODUITS CHOISIS' suivie des fiches complètes des "
+            "2 produits (PRODUIT 1 et PRODUIT 2), chacune avec recette "
+            "classique (incluant '**Ingrédients :**') et recette créative "
+            "(incluant '**Ingrédients :**')."
         ),
         agent=agent_cuisinier,
-        context=[tache_saisonnalite],
-        callback=sauvegarder_ingredients_creatifs,
+        callback=sauvegarder_tous_les_ingredients,
     )
 
     # ------------------------------------------------------------------
-    # Tâche 3 — Rédaction
+    # Tâche 2 — Rédaction
     # ------------------------------------------------------------------
     tache_redaction = Task(
         description=(
-            "À partir des fiches produits et des recettes créatives, "
+            "À partir des fiches produits et des recettes, "
             "rédige pour chacun des 2 produits : le post photo produit "
             "Instagram (titre, 150-200 mots, une question ouverte en fin "
             "de texte, 12 hashtags), la légende courte TikTok (100 mots "
@@ -184,13 +144,13 @@ def creer_taches(produits_disponibles: dict, date_lundi: str, historique_produit
             "Markdown '## ...' exact comme précisé ci-dessus."
         ),
         agent=agent_redaction,
-        context=[tache_saisonnalite, tache_cuisinier],
+        context=[tache_cuisinier],
         callback=sauvegarder_legendes,
     )
 
     # ------------------------------------------------------------------
-    # Tâche 4 — Photo Ingrédients (déplacée avant les carousels : les
-    # slides 1-3 de chaque carousel utilisent cette photo comme fond)
+    # Tâche 3 — Photo Ingrédients (avant les carousels : les slides 1-3
+    # utilisent cette photo comme fond)
     # ------------------------------------------------------------------
     tache_photo_ingredients = Task(
         description=(
@@ -210,25 +170,18 @@ def creer_taches(produits_disponibles: dict, date_lundi: str, historique_produit
             "soit 4 appels au total. Ne demande jamais à voir le contenu de "
             "l'image générée, l'outil ne renvoie qu'un message de statut "
             "court. Si Gemini échoue pour un carousel, continue sans "
-            "bloquer et signale clairement l'échec et son motif : les "
-            "slides correspondantes utiliseront alors le fond crème teinté "
-            "standard à la place de la photo."
+            "bloquer et signale clairement l'échec et son motif."
         ),
         expected_output=(
             "Un récapitulatif des 4 photos (générées avec succès ou en "
             "échec, avec motif de l'échec le cas échéant)."
         ),
         agent=agent_photo_ingredients,
-        context=[tache_saisonnalite, tache_cuisinier],
+        context=[tache_cuisinier],
     )
 
     # ------------------------------------------------------------------
-    # Tâches 5a-5d — Générateur Slides (carousels), une tâche par carousel
-    # plutôt qu'une seule tâche de 24 appels d'outil : CrewAI réenvoie tout
-    # l'historique de la tâche à chaque appel, donc le coût croît avec le
-    # carré du nombre d'étapes — 4 tâches de 6 étapes coûtent nettement
-    # moins au total qu'une tâche de 24 étapes, même en comptant le
-    # backstory ré-envoyé 4 fois au lieu d'une.
+    # Tâches 4a-4d — Générateur Slides (carousels), une tâche par carousel
     # ------------------------------------------------------------------
     taches_design_slides = []
     for nom_carousel in NOMS_CAROUSELS:
@@ -264,7 +217,7 @@ def creer_taches(produits_disponibles: dict, date_lundi: str, historique_produit
         )
 
     # ------------------------------------------------------------------
-    # Tâche 6 — Générateur Stories
+    # Tâche 5 — Générateur Stories
     # ------------------------------------------------------------------
     tache_design_stories = Task(
         description=(
@@ -287,11 +240,11 @@ def creer_taches(produits_disponibles: dict, date_lundi: str, historique_produit
             "explicite des éventuels échecs de génération."
         ),
         agent=agent_design_stories,
-        context=[tache_saisonnalite, tache_cuisinier],
+        context=[tache_cuisinier],
     )
 
     # ------------------------------------------------------------------
-    # Tâche 7 — Briefs Vidéo (reel principal + reel satellite)
+    # Tâche 6 — Briefs Vidéo (reel principal + reel satellite)
     # ------------------------------------------------------------------
     tache_briefs_video = Task(
         description=(
@@ -318,12 +271,12 @@ def creer_taches(produits_disponibles: dict, date_lundi: str, historique_produit
             "comme précisé ci-dessus."
         ),
         agent=agent_briefs_video,
-        context=[tache_saisonnalite, tache_cuisinier],
+        context=[tache_cuisinier],
         callback=sauvegarder_briefs,
     )
 
     # ------------------------------------------------------------------
-    # Tâche 8 — Email Coach (orchestration finale)
+    # Tâche 7 — Email Coach (orchestration finale)
     # ------------------------------------------------------------------
     tache_email_coach = Task(
         description=(
@@ -348,7 +301,6 @@ def creer_taches(produits_disponibles: dict, date_lundi: str, historique_produit
         ),
         agent=agent_email_coach,
         context=[
-            tache_saisonnalite,
             tache_cuisinier,
             tache_redaction,
             tache_photo_ingredients,
@@ -359,7 +311,6 @@ def creer_taches(produits_disponibles: dict, date_lundi: str, historique_produit
     )
 
     return [
-        tache_saisonnalite,
         tache_cuisinier,
         tache_redaction,
         tache_photo_ingredients,

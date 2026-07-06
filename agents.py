@@ -13,7 +13,7 @@ import os
 from crewai import Agent, LLM
 
 from utils import charger_prompt, charger_style_guide
-from tools import (
+from tools import (  # noqa: F401
     generer_slide_png,
     generer_story_png,
     generer_photo_ingredient,
@@ -41,30 +41,15 @@ GUIDE_DE_STYLE = charger_style_guide()
 
 
 # ----------------------------------------------------------------------
-# Agent 1 — Saisonnalité
-# ----------------------------------------------------------------------
-agent_saisonnalite = Agent(
-    role="Experte en saisonnalité des fruits et légumes",
-    goal=(
-        "Identifier chaque semaine les 2 produits vedettes les plus "
-        "pertinents pour le contenu Instagram/TikTok, selon le mois en cours."
-    ),
-    backstory=charger_prompt("agent_saisonnalite.md"),
-    llm=LLM_CLAUDE,
-    verbose=True,
-    allow_delegation=False,
-)
-
-
-# ----------------------------------------------------------------------
-# Agent 2 — Cuisinier Créatif
+# Agent 1 — Chef Cuisinier Saisonnier (choix produits + fiches + recettes)
 # ----------------------------------------------------------------------
 agent_cuisinier = Agent(
-    role="Chef cuisinier créatif, formation classique française",
+    role="Chef cuisinier saisonnier — expert produits et recettes",
     goal=(
-        "Inventer une recette originale et inédite par produit vedette, "
-        "jamais la recette emblématique classique, toujours différente "
-        "des recettes précédemment proposées."
+        "Choisir chaque semaine les 2 produits de saison les plus pertinents "
+        "pour le contenu Instagram/TikTok, fournir leurs fiches complètes, "
+        "et inventer une recette créative originale par produit en plus de "
+        "la recette emblématique classique."
     ),
     backstory=charger_prompt("agent_cuisinier.md") + "\n\n" + GUIDE_DE_STYLE,
     llm=LLM_CLAUDE,

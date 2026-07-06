@@ -2,12 +2,15 @@
 """
 main.py — Point d'entrée du pipeline hebdomadaire de l'agence.
 
-Orchestre les 8 agents CrewAI en Process.sequential :
+Orchestre les 7 agents CrewAI en Process.sequential :
 1. Charge les variables d'environnement (.env en local, secrets GitHub en CI)
-2. Détermine les produits de saison du mois en cours
-3. Prépare l'arborescence locale de sortie (output/semaine_JJ_mois_AAAA/...)
-4. Construit et exécute le Crew CrewAI
-5. Affiche le résultat final dans les logs
+2. Prépare l'arborescence locale de sortie (output/semaine_JJ_mois_AAAA/...)
+3. Construit et exécute le Crew CrewAI
+4. Affiche le résultat final dans les logs
+
+Le choix des produits de saison est délégué au Chef Cuisinier Saisonnier
+(tâche 1), qui reçoit le mois en cours et l'historique des produits récents.
+Plus besoin de saison_data.py.
 
 Déclenché chaque lundi 6h heure de Paris (4h UTC) par .github/workflows/agence.yml, ou
 manuellement via `python main.py` ou `workflow_dispatch` sur GitHub Actions.
@@ -22,7 +25,6 @@ from datetime import date
 from dotenv import load_dotenv
 from crewai import Crew, Process
 
-from saison_data import produits_du_mois
 from utils import (
     date_lundi_semaine_courante,
     chemin_dossier_semaine,
@@ -30,7 +32,7 @@ from utils import (
 )
 
 FICHIER_HISTORIQUE = "historique_produits.json"
-NB_SEMAINES_HISTORIQUE = 8  # fenêtre transmise à l'agent Saisonnalité
+NB_SEMAINES_HISTORIQUE = 8  # fenêtre glissante transmise au Chef Cuisinier
 
 
 def charger_historique() -> list:
@@ -41,20 +43,18 @@ def charger_historique() -> list:
         return json.load(f)
 
 
-def extraire_produits_choisis(texte: str, produits_disponibles: dict) -> list:
+def extraire_produits_choisis(texte: str) -> list:
     """
-    Cherche dans le texte de sortie de l'Agent Saisonnalité les noms de
-    produits (clés de produits_disponibles) qui y apparaissent, et retourne
-    les deux premiers trouvés — suffisant pour mettre à jour l'historique.
+    Lit la section '## PRODUITS CHOISIS' dans la sortie du Chef Cuisinier
+    Saisonnier (tâche 1) et retourne les 2 noms de produits en minuscules.
+
+    Format attendu dans le texte :
+        ## PRODUITS CHOISIS
+        - Produit 1 : courgette
+        - Produit 2 : abricot
     """
-    trouves = []
-    for nom in produits_disponibles:
-        motif = nom.replace("_", r"[\s_-]?")
-        if re.search(rf"\b{motif}\b", texte, re.IGNORECASE) and nom not in trouves:
-            trouves.append(nom)
-        if len(trouves) == 2:
-            break
-    return trouves
+    trouves = re.findall(r"-\s*Produit\s*\d+\s*:\s*(\S+)", texte, re.IGNORECASE)
+    return [p.lower().strip(".,;:") for p in trouves[:2]]
 
 
 def sauvegarder_historique(historique: list, date_lundi: str, nouveaux_produits: list) -> None:
@@ -119,7 +119,6 @@ def main() -> None:
     # avant, pour un message d'erreur plus lisible en cas d'oubli.
     from tasks import creer_taches
     from agents import (
-        agent_saisonnalite,
         agent_cuisinier,
         agent_redaction,
         agent_design_slides,
@@ -134,26 +133,17 @@ def main() -> None:
     dossier_semaine = chemin_dossier_semaine(lundi)
     preparer_arborescence_locale(dossier_semaine)
 
-    produits_disponibles = produits_du_mois(aujourd_hui.month)
-    if not produits_disponibles:
-        print(
-            f"ERREUR : aucun produit de saison trouvé pour le mois {aujourd_hui.month}. "
-            "Vérifie saison_data.py."
-        )
-        sys.exit(1)
-
     historique = charger_historique()
     semaines_recentes = historique[-NB_SEMAINES_HISTORIQUE:]
 
     taches = creer_taches(
-        produits_disponibles=produits_disponibles,
+        mois=aujourd_hui.month,
         date_lundi=lundi.strftime("%d/%m/%Y"),
         historique_produits=semaines_recentes,
     )
 
     equipe = Crew(
         agents=[
-            agent_saisonnalite,
             agent_cuisinier,
             agent_redaction,
             agent_design_slides,
@@ -173,11 +163,11 @@ def main() -> None:
         print("=== Pipeline terminé avec succès ===")
         print(resultat)
 
-        # Mise à jour de l'historique produits pour éviter les répétitions
-        # la semaine suivante. On cherche les noms de produits dans la sortie
-        # de la première tâche (Agent Saisonnalité).
-        texte_saisonnalite = resultat.tasks_output[0].raw if resultat.tasks_output else ""
-        produits_choisis = extraire_produits_choisis(texte_saisonnalite, produits_disponibles)
+        # Mise à jour de l'historique produits pour éviter les répétitions.
+        # On lit la section '## PRODUITS CHOISIS' dans la sortie de la tâche 1
+        # (Chef Cuisinier Saisonnier), qui est maintenant la première tâche.
+        texte_cuisinier = resultat.tasks_output[0].raw if resultat.tasks_output else ""
+        produits_choisis = extraire_produits_choisis(texte_cuisinier)
         sauvegarder_historique(historique, lundi.strftime("%d/%m/%Y"), produits_choisis)
         if produits_choisis:
             print(f"Historique mis à jour : {produits_choisis}")
