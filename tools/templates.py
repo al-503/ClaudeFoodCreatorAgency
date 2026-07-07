@@ -262,108 +262,51 @@ def construire_markdown_planning(date_semaine: str, planning: list, checklist: l
     return "\n".join(lignes)
 
 
-def construire_html_email(date_semaine: str, lien_drive: str, contenu_planning_markdown: str) -> str:
+def construire_html_email(
+    date_semaine: str,
+    lien_drive: str,
+    produit1: str,
+    produit2: str,
+    liste_courses: str,
+) -> str:
     """
-    Construit le HTML de l'email récapitulatif hebdomadaire envoyé au coach
-    (texte simple, planning, checklist). Déterministe, sans LLM : le
-    contenu vient du fichier planning_coach.md déjà généré par
-    `enregistrer_planning`.
+    Construit le HTML de l'email récapitulatif hebdomadaire : produits de la
+    semaine + liste de courses brute. Déterministe, sans LLM.
 
-    Le lien Drive n'est volontairement JAMAIS affiché dans l'email (ni en
-    texte, ni en lien cliquable) : testé en pratique, un email contenant
-    une URL drive.google.com — même en texte brut, sans aucun HTML — est
-    rejeté par le filtre anti-spam de SFR (550 rejected per spam policy),
-    ce domaine étant très utilisé pour le phishing. Le dossier racine
-    Drive de l'agence ("AgenceInstagram") étant stable d'une semaine à
-    l'autre (voir tools/drive.py), il suffit de le mettre en favori une
-    fois dans son navigateur plutôt que de cliquer un lien depuis l'email.
+    Le lien Drive n'est volontairement JAMAIS affiché dans l'email : testé en
+    pratique, une URL drive.google.com est rejetée par le filtre anti-spam de
+    SFR (550 rejected per spam policy). Mettre le dossier AgenceInstagram en
+    favori navigateur suffit.
     """
     upload_ok = bool(lien_drive) and not lien_drive.startswith("ERREUR")
-    if upload_ok:
-        lien_html = (
-            "Disponible dans ton dossier Drive habituel "
-            "(AgenceInstagram), sous-dossier de cette semaine."
-        )
+    lien_html = (
+        "Disponible dans ton dossier Drive habituel (AgenceInstagram), "
+        "sous-dossier de cette semaine."
+        if upload_ok
+        else "Le dossier Drive n'a pas pu être uploadé automatiquement cette "
+        "semaine — à faire manuellement."
+    )
+
+    # Liste de courses : chaque ligne "- ingrédient" → <li>
+    lignes_courses = [
+        l.lstrip("- ").strip()
+        for l in liste_courses.splitlines()
+        if l.strip().startswith("-")
+    ]
+    if lignes_courses:
+        items_html = "".join(f"<li>{html_lib.escape(l)}</li>" for l in lignes_courses)
+        courses_html = f"<h3>Liste de courses</h3><ul>{items_html}</ul>"
     else:
-        lien_html = (
-            "Le dossier Drive n'a pas pu être uploadé automatiquement cette "
-            "semaine — à faire manuellement."
-        )
+        courses_html = "<p><em>Liste de courses non disponible.</em></p>"
 
-    # Conversion simple du Markdown du planning en HTML (tableau -> lignes,
-    # checklist -> liste à puces), sans dépendance externe. On suit l'état
-    # "dans un tableau" / "dans une liste" pour ouvrir et fermer
-    # correctement <table> et <ul> (un <tr> ou <li> orphelin, sans balise
-    # parente correctement fermée, est déplacé n'importe où dans la page
-    # par l'algorithme de parsing HTML des navigateurs).
-    corps_html_lignes = []
-    dans_tableau = False
-    dans_liste = False
-
-    def _fermer_tableau():
-        nonlocal dans_tableau
-        if dans_tableau:
-            corps_html_lignes.append("</table>")
-            dans_tableau = False
-
-    def _fermer_liste():
-        nonlocal dans_liste
-        if dans_liste:
-            corps_html_lignes.append("</ul>")
-            dans_liste = False
-
-    for ligne in contenu_planning_markdown.split("\n"):
-        ligne_nettoyee = ligne.strip()
-        if not ligne_nettoyee or ligne_nettoyee.startswith("|---"):
-            continue
-
-        est_ligne_tableau = ligne_nettoyee.startswith("|")
-        est_ligne_liste = ligne_nettoyee.startswith("- [ ]")
-
-        if not est_ligne_tableau:
-            _fermer_tableau()
-        if not est_ligne_liste:
-            _fermer_liste()
-
-        if ligne_nettoyee.startswith("# "):
-            corps_html_lignes.append(f"<h2>{html_lib.escape(ligne_nettoyee[2:])}</h2>")
-        elif ligne_nettoyee.startswith("## "):
-            corps_html_lignes.append(f"<h3>{html_lib.escape(ligne_nettoyee[3:])}</h3>")
-        elif est_ligne_liste:
-            if not dans_liste:
-                corps_html_lignes.append("<ul>")
-                dans_liste = True
-            corps_html_lignes.append(f"<li>{html_lib.escape(ligne_nettoyee[5:].strip())}</li>")
-        elif est_ligne_tableau:
-            if not dans_tableau:
-                corps_html_lignes.append("<table style='border-collapse:collapse;width:100%;margin:12px 0;'>")
-                dans_tableau = True
-            cellules = [c.strip() for c in ligne_nettoyee.strip("|").split("|")]
-            corps_html_lignes.append(
-                "<tr>" + "".join(f"<td style='padding:6px 10px;'>{html_lib.escape(c)}</td>" for c in cellules) + "</tr>"
-            )
-        elif ligne_nettoyee.startswith("_"):
-            corps_html_lignes.append(f"<p><em>{html_lib.escape(ligne_nettoyee.strip('_'))}</em></p>")
-        else:
-            corps_html_lignes.append(f"<p>{html_lib.escape(ligne_nettoyee)}</p>")
-
-    _fermer_tableau()
-    _fermer_liste()
-    corps_html = "".join(corps_html_lignes)
-
-    # Style volontairement minimal (pas de bannière colorée, pas de bouton
-    # CTA) : un email avec ce type de mise en forme reproduit visuellement
-    # le pattern classique des notifications de phishing ("votre document
-    # est prêt, cliquez ici"), ce que plusieurs filtres anti-spam (dont
-    # celui de SFR) détectent et rejettent même sans lien malveillant. Une
-    # mise en page proche d'un email personnel passe nettement mieux.
     return f"""<!DOCTYPE html>
 <html><head><meta charset="utf-8"></head>
 <body style="margin:0;background:#FFFFFF;font-family:Arial,sans-serif;color:{TEXTE_SOMBRE};">
   <div style="max-width:600px;margin:0 auto;padding:24px;">
     <p>Bonjour,</p>
-    <p>Le dossier de la semaine du {html_lib.escape(date_semaine)} est prêt.</p>
+    <p>Le contenu de la semaine du {html_lib.escape(date_semaine)} est prêt.</p>
+    <p><strong>Produits de la semaine :</strong> {html_lib.escape(produit1.capitalize())} et {html_lib.escape(produit2.capitalize())}</p>
     <p>Dossier Drive : {lien_html}</p>
-    {corps_html}
+    {courses_html}
   </div>
 </body></html>"""

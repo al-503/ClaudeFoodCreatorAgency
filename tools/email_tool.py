@@ -26,11 +26,11 @@ from email.mime.text import MIMEText
 from crewai.tools import tool
 
 from utils import chemin_dossier_semaine
-from tools.templates import construire_markdown_planning, construire_html_email
+from tools.templates import construire_html_email
 
 SERVEUR_SMTP_GMAIL = "smtp.gmail.com"
 PORT_SMTP_SSL = 465
-NOM_FICHIER_PLANNING = "planning_coach.md"
+NOM_FICHIER_LISTE_COURSES = "legendes_et_briefs/liste_courses.md"
 
 
 @tool("enregistrer_planning")
@@ -64,18 +64,18 @@ def enregistrer_planning(date_semaine: str, planning: list, checklist: list) -> 
 
 
 @tool("envoyer_email_recap")
-def envoyer_email_recap(date_semaine: str, lien_drive: str) -> str:
+def envoyer_email_recap(date_semaine: str, lien_drive: str, produit1: str, produit2: str) -> str:
     """
-    Envoie l'email récapitulatif hebdomadaire au coach via SMTP Gmail. Le
-    contenu HTML est construit automatiquement à partir du fichier
-    planning_coach.md déjà écrit par `enregistrer_planning` (qui doit donc
-    être appelé avant cet outil) : aucun contenu HTML à fournir ici.
+    Envoie l'email récapitulatif hebdomadaire au coach via SMTP Gmail.
+    L'email affiche les deux produits de la semaine et la liste de courses
+    extraite automatiquement depuis liste_courses.md.
 
     Args:
         date_semaine: ex. "28/06/2026"
         lien_drive: URL du dossier Drive de la semaine, ou message
-            "ERREUR: ..." si l'upload a échoué (l'email le signale alors
-            clairement au lieu d'afficher un bouton cassé)
+            "ERREUR: ..." si l'upload a échoué
+        produit1: nom du premier produit vedette (ex: "courgette")
+        produit2: nom du second produit vedette (ex: "framboise")
 
     Retourne un message de confirmation, ou un message "ERREUR:" explicite
     en cas d'échec (identifiants invalides, serveur SMTP indisponible...).
@@ -90,13 +90,13 @@ def envoyer_email_recap(date_semaine: str, lien_drive: str) -> str:
             "ou EMAIL_PASSWORD manquantes."
         )
 
-    chemin_planning = os.path.join(chemin_dossier_semaine(), NOM_FICHIER_PLANNING)
-    contenu_planning = ""
-    if os.path.isfile(chemin_planning):
-        with open(chemin_planning, "r", encoding="utf-8") as f:
-            contenu_planning = f.read()
+    chemin_courses = os.path.join(chemin_dossier_semaine(), NOM_FICHIER_LISTE_COURSES)
+    liste_courses = ""
+    if os.path.isfile(chemin_courses):
+        with open(chemin_courses, "r", encoding="utf-8") as f:
+            liste_courses = f.read()
 
-    contenu_html = construire_html_email(date_semaine, lien_drive, contenu_planning)
+    contenu_html = construire_html_email(date_semaine, lien_drive, produit1, produit2, liste_courses)
 
     # Une version texte brut en plus du HTML : un email HTML sans
     # alternative texte est un signal classique de spam pour de nombreux
@@ -119,8 +119,9 @@ def envoyer_email_recap(date_semaine: str, lien_drive: str) -> str:
     contenu_texte = (
         f"Bonjour,\n\n"
         f"Le dossier de la semaine du {date_semaine} est prêt.\n\n"
+        f"Produits de la semaine : {produit1} et {produit2}\n\n"
         f"Dossier Drive : {ligne_drive}\n\n"
-        f"{contenu_planning}"
+        f"{liste_courses}"
     )
 
     message = MIMEMultipart("alternative")

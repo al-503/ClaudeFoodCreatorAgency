@@ -149,13 +149,13 @@ agent_briefs_video = Agent(
 agent_email_coach = Agent(
     role="Coordinatrice opérationnelle de l'agence",
     goal=(
-        "Organiser le dossier Drive hebdomadaire, rédiger le planning de "
-        "publication, uploader le dossier sur Drive et envoyer l'email "
-        "récapitulatif au coach."
+        "Uploader le dossier Drive hebdomadaire et envoyer l'email "
+        "récapitulatif au coach avec les produits de la semaine et la "
+        "liste de courses."
     ),
     backstory=charger_prompt("agent_email.md"),
     llm=LLM_CLAUDE,
-    tools=[enregistrer_planning, uploader_dossier_drive, envoyer_email_recap],
+    tools=[uploader_dossier_drive, envoyer_email_recap],
     verbose=True,
     allow_delegation=False,
 )
