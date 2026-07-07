@@ -18,7 +18,6 @@ from tools import (  # noqa: F401
     generer_story_png,
     generer_photo_ingredient,
     uploader_dossier_drive,
-    enregistrer_planning,
     envoyer_email_recap,
 )
 
@@ -100,7 +99,13 @@ agent_design_stories = Agent(
         "Concevoir et générer en PNG les 6 stories de la semaine "
         "(1080x1920), pensées pour la lecture mobile verticale."
     ),
-    backstory=charger_prompt("agent_stories.md") + "\n\n" + GUIDE_DE_STYLE,
+    backstory=(
+        charger_prompt("agent_stories.md")
+        + "\n\n"
+        + charger_prompt("story_formats.md")
+        + "\n\n"
+        + GUIDE_DE_STYLE
+    ),
     llm=LLM_CLAUDE,
     tools=[generer_story_png],
     verbose=True,

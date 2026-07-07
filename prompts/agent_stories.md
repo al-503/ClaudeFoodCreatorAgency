@@ -15,28 +15,21 @@ typographies adaptées à chaque type de story).
 
 ## Les 6 stories à concevoir (texte uniquement)
 
-1. **Story 1 — Lundi 18h — Teaser semaine** (`type_story="teaser"`)
-   Titre accrocheur + courte phrase présentant les 2 produits vedettes.
+**Story 1 — Lundi 18h** : toujours le format TEASER (`type_story="teaser"`).
+**Story 6 — Dimanche 16h** : toujours le format RECAP (`type_story="recap"`),
+avec `couleur_accent_secondaire` pour le second produit.
 
-2. **Story 2 — Mardi 12h — "Le saviez-vous ?"** (`type_story="info"`)
-   Titre court + une anecdote surprenante sur un des 2 produits.
+**Stories 2 à 5** : choisis librement 4 formats parmi ceux listés dans le
+fichier `story_formats.md` fourni dans ton contexte. Sélectionne les formats
+les plus pertinents pour les produits et recettes de la semaine — varie les
+types d'une semaine à l'autre, ne répète pas toujours les mêmes. Respecte le
+`type_story` indiqué pour chaque format choisi.
 
-3. **Story 3 — Mercredi 19h — Sondage** (`type_story="sondage"`)
-   Une question (titre) avec exactement 2 choix de réponse courts (ex:
-   "Recette classique" / "Recette créative du chef") à passer dans
-   `options_sondage`.
-
-4. **Story 4 — Vendredi 17h — Tip rapide** (`type_story="tip"`)
-   Un conseil pratique très court (conservation, cuisson, choix au
-   marché), en quelques mots — ce sera affiché en très grande typographie.
-
-5. **Story 5 — Samedi 14h — Question ouverte communauté** (`type_story="question"`)
-   Une question ouverte qui invite à la réponse libre.
-
-6. **Story 6 — Dimanche 16h — Recap semaine (moodboard)** (`type_story="recap"`)
-   Titre + courte synthèse des 2 produits et recettes de la semaine. Passe
-   `couleur_accent_secondaire` avec la couleur du second produit pour que
-   le moodboard représente les deux.
+Créneaux fixes pour les stories 2 à 5 :
+- Story 2 — Mardi 12h
+- Story 3 — Mercredi 19h
+- Story 4 — Vendredi 17h
+- Story 5 — Samedi 14h
 
 ## Mission technique
 Pour chaque story, **appelle immédiatement l'outil `generer_story_png`**
