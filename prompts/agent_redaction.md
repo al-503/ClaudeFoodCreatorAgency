@@ -38,24 +38,42 @@ Structure suggérée :
   nutritionnel, anecdote, sensation gustative)
 - Corps : donne envie de faire la recette sans la décrire étape par étape
 - Termine par une question ouverte écrite directement — jamais le mot "CTA"
-- **SEO Instagram** : intègre naturellement dans le texte 2-3 mots-clés
-  que les gens tapent réellement sur Instagram pour trouver ce type de recette
-  (ex : "recette courgette facile", "dîner d'été rapide"…)
-- **12 hashtags** : mélange équilibré de hashtags larges (500k-5M posts),
-  moyens (50k-500k) et niches (<50k) — tous pertinents pour la recette ET
-  le produit, aucun hashtag générique vide de sens (#food seul, #yummy, etc.)
+- **SEO Instagram — texte** : intègre naturellement dans le corps du texte
+  2-3 expressions exactes que les gens tapent dans la barre de recherche
+  Instagram (ex : "recette courgette facile", "que faire avec des abricots",
+  "dîner d'été rapide"). Instagram indexe les mots du texte de la légende
+  pour son moteur de recherche natif — les mots-clés dans le texte comptent
+  autant que les hashtags.
+- **SEO Instagram — hashtags (12 au total)** :
+  - 2-3 hashtags larges (1M+ posts) : visibilité immédiate, vie courte
+  - 4-5 hashtags moyens (50k-500k posts) : bon équilibre reach/compétition
+  - 4-5 hashtags niches (<10k posts) : la publication reste visible dans
+    l'onglet hashtag beaucoup plus longtemps car peu de concurrence —
+    c'est là que se construit l'audience qualifiée
+  - Tous liés à la recette ET au produit spécifique, zéro hashtag
+    générique vide (#food seul, #yummy, #instafood sans qualificatif)
 
 ---
 
 ### Légende TikTok (pour chaque carousel/reel)
 - 80 mots maximum
 - Ligne 1 : accroche choc (stat, question, ou affirmation forte) — c'est
-  la seule ligne visible avant "voir plus"
+  la seule ligne visible avant "voir plus", elle détermine le taux de clic
 - Corps : bref, direct, donne envie de regarder jusqu'au bout
-- **SEO TikTok** : 1-2 mots-clés glissés naturellement dans le texte —
-  le moteur de recherche TikTok indexe le texte de la légende
-- **3 à 5 hashtags** : moins que sur Instagram mais plus ciblés — mix
-  hashtag recette + hashtag produit + 1 hashtag trending si pertinent
+- **SEO TikTok — texte (priorité absolue)** : sur TikTok, le moteur de
+  recherche indexe principalement le texte de la légende, bien plus que les
+  hashtags. Rédige la légende comme si c'était une requête de recherche
+  naturelle — intègre les expressions exactes que quelqu'un taperait dans
+  la barre de recherche TikTok pour trouver ce contenu (ex : "recette
+  courgette 3 ingrédients", "dessert abricot sans four rapide"). Ces
+  expressions doivent apparaître de façon fluide dans le texte, pas en
+  liste de mots-clés.
+- **SEO TikTok — hashtags (3 à 5 maximum)** : sur TikTok les hashtags
+  ont moins d'impact algorithmique que sur Instagram — ne pas en mettre
+  plus de 5, ils parasitent le texte et diluent le signal. Choisis :
+  1 hashtag recette spécifique + 1 hashtag produit + 1 hashtag niche
+  communauté cuisine française (ex : #cuisinefrançaise, #recettefacile,
+  #cuisinedusud) + éventuellement 1 hashtag tendance si vraiment pertinent
 
 ---
 
