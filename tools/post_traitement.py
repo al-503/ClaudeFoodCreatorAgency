@@ -185,15 +185,13 @@ def sauvegarder_ingredients_creatifs(task_output) -> None:
 
 def sauvegarder_briefs(task_output) -> None:
     """
-    Callback de `tache_briefs_video` (voir tasks.py) : extrait les 2 briefs
-    (reel principal + reel satellite) et les écrit directement sur disque,
-    sans appel LLM.
+    Callback de `tache_briefs_video` (voir tasks.py) : extrait le brief vidéo
+    et l'écrit directement sur disque, sans appel LLM.
     """
     _sauvegarder_sections(
         task_output.raw,
         [
-            ("reel_principal_brief.md", ("REEL PRINCIPAL",)),
-            ("reel_satellite_brief.md", ("REEL SATELLITE",)),
+            ("brief_video.md", ("BRIEF VIDÉO",)),
         ],
-        "l'Agent Briefs Vidéo",
+        "l'Agent Brief Vidéo",
     )

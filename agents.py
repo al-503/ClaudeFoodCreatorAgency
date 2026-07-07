@@ -136,13 +136,7 @@ agent_briefs_video = Agent(
         "satellite (20-30s) du produit vedette n°1, avec plans détaillés "
         "et légendes prêtes à l'emploi."
     ),
-    backstory=(
-        charger_prompt("agent_reel_principal.md")
-        + "\n\n"
-        + charger_prompt("agent_reel_satellite.md")
-        + "\n\n"
-        + GUIDE_DE_STYLE
-    ),
+    backstory=charger_prompt("agent_reel_principal.md") + "\n\n" + GUIDE_DE_STYLE,
     llm=LLM_CLAUDE,
     verbose=True,
     allow_delegation=False,

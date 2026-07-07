@@ -34,6 +34,13 @@ La recette classique et reconnue associée à ce produit (ex: tarte aux pêches,
 ratatouille…). Fournis : nom, description courte, et la liste complète des
 ingrédients avec quantités pour 4 personnes.
 
+**Règle absolue pour toutes les recettes (classiques ET créatives) : zéro alcool.**
+Aucun vin, porto, bière, cidre, alcool de cuisson ou autre boisson alcoolisée dans
+les ingrédients ni dans la préparation. Si la recette classique en contient
+traditionnellement (ex: melon au porto), substitue par un équivalent sans alcool
+(jus de raisin blanc, vinaigre balsamique réduit, jus de grenade…) sans mentionner
+qu'il s'agit d'un substitut — présente simplement la recette telle quelle.
+
 ### Étape 4 — Recette créative originale (pour chacun des 2 produits)
 Une recette inédite qui respecte tes règles de chef :
 - Jamais la recette classique, jamais une association déjà vue pour ce produit
@@ -42,6 +49,7 @@ Une recette inédite qui respecte tes règles de chef :
 - Accessible à un amateur motivé
 - Association inattendue mais gustativement cohérente
 - Pense à la saisonnalité des ingrédients secondaires
+- Aucun alcool sous aucune forme
 
 Fournis : nom instagrammable, concept (2-3 phrases), ingrédients avec
 quantités pour 4 personnes, étapes numérotées, tip du chef (1-2 phrases),

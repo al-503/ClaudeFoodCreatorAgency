@@ -244,31 +244,25 @@ def creer_taches(mois: int, date_lundi: str, historique_produits: list = None) -
     )
 
     # ------------------------------------------------------------------
-    # Tâche 6 — Briefs Vidéo (reel principal + reel satellite)
+    # Tâche 6 — Brief Vidéo (guide de tournage générique)
     # ------------------------------------------------------------------
     tache_briefs_video = Task(
         description=(
-            "Pour le produit vedette n°1, rédige le brief complet du reel "
-            "principal (45-60s, concept, 8-10 plans détaillés, setup, "
-            "musique, textes écran, légendes Instagram et TikTok) en te "
-            "basant sur sa recette créative. Puis rédige le brief du reel "
-            "satellite (20-30s, recette complémentaire inédite à inventer, "
-            "4-5 plans, légendes Instagram avec rappel du reel principal et "
-            "TikTok). Les deux légendes TikTok doivent rappeler : exporter "
-            "sans watermark, poster 3h après Instagram.\n\n"
-            "Format obligatoire : précède le brief du reel principal par le "
-            "titre Markdown EXACT '## REEL PRINCIPAL' (deux dièses, un "
-            "espace, rien d'autre sur la ligne), et le brief du reel "
-            "satellite par '## REEL SATELLITE'. Ce format est lu "
-            "automatiquement par un programme juste après ta tâche pour "
-            "sauvegarder les 2 briefs : un titre qui ne correspond pas "
-            "exactement à ce format fait échouer cette sauvegarde "
-            "automatique."
+            "À partir de la fiche du produit vedette n°1 et de ses recettes, "
+            "rédige le guide de tournage vidéo de la semaine en suivant "
+            "scrupuleusement tes instructions. Le guide doit être générique "
+            "(utilisable quelle que soit la recette choisie le jour J) et "
+            "inclure des éléments textuels concrets tirés de la fiche produit "
+            "(anecdote, saisonnalité, question communauté) ainsi que les "
+            "légendes Instagram et TikTok.\n\n"
+            "Format obligatoire : commence ta réponse par le titre Markdown "
+            "EXACT '## BRIEF VIDÉO' (deux dièses, un espace, rien d'autre "
+            "sur la ligne). Ce titre est lu automatiquement par un programme "
+            "pour sauvegarder le brief dans 'brief_video.md'."
         ),
         expected_output=(
-            "Les 2 briefs complets et structurés, chacun précédé de son "
-            "titre Markdown '## REEL PRINCIPAL' / '## REEL SATELLITE' exact "
-            "comme précisé ci-dessus."
+            "Le guide de tournage complet (5 blocs + légendes), précédé du "
+            "titre Markdown '## BRIEF VIDÉO' exact."
         ),
         agent=agent_briefs_video,
         context=[tache_cuisinier],
