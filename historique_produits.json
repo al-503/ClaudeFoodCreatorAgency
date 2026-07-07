@@ -26,5 +26,12 @@
       "melon",
       "haricot"
     ]
+  },
+  {
+    "semaine": "06/07/2026",
+    "produits": [
+      "aubergine",
+      "cerise"
+    ]
   }
 ]

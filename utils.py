@@ -60,7 +60,10 @@ def nom_dossier_semaine(lundi: date = None) -> str:
         "janvier", "fevrier", "mars", "avril", "mai", "juin",
         "juillet", "aout", "septembre", "octobre", "novembre", "decembre",
     ]
-    return f"semaine_{lundi.day:02d}_{mois_fr[lundi.month - 1]}_{lundi.year}"
+    nom = f"semaine_{lundi.day:02d}_{mois_fr[lundi.month - 1]}_{lundi.year}"
+    if os.environ.get("TEST_MODE") == "1":
+        nom = f"test_{nom}"
+    return nom
 
 
 def chemin_dossier_semaine(lundi: date = None) -> str:
