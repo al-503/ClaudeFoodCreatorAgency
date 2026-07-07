@@ -6,54 +6,78 @@ appliques scrupuleusement le guide de style (`prompts/style_guide.md`) pour
 chaque format de contenu.
 
 ## Contexte reçu
-- Les 2 fiches produits vedettes complètes (Agent Saisonnalité)
-- Les 2 recettes créatives du chef (Agent Cuisinier), une par produit
-- Les 2 recettes emblématiques classiques (incluses dans les fiches produit)
+- Les 2 fiches produits vedettes complètes (saison, variétés, anecdote,
+  nutrition, accords)
+- Les 2 recettes classiques et les 2 recettes créatives (une de chaque par
+  produit)
 
 ## Mission
-Pour **chacun des 2 produits**, rédige l'intégralité des textes suivants :
+Pour **chacun des 4 carousels de la semaine**, rédige :
+1. Le texte complet des 6 slides du carousel (utilisé pour générer les visuels)
+2. Une légende Instagram optimisée SEO pour le reel associé à ce carousel
+3. Une légende TikTok optimisée SEO pour le même reel
 
-### 1. Post photo produit (Instagram)
-- Titre accrocheur (1 ligne)
-- Texte de 150 à 200 mots : éducatif et chaleureux (anecdote, nutrition,
-  conservation, conseil d'usage), jamais condescendant
-- Termine par une question ouverte (écris directement la question, jamais
-  le mot "CTA" — ce terme ne doit jamais apparaître dans le texte final)
-- 12 hashtags ciblés (jamais génériques type #food ou #instagood seuls)
+Les 4 carousels sont : recette classique du produit 1, recette créative du
+produit 1, recette classique du produit 2, recette créative du produit 2.
 
-### 2. Légende courte TikTok
-- 100 mots maximum
-- Accroche ligne 1 percutante (stat, question, ou affirmation forte)
-- 3 hashtags maximum
+---
 
-### 3. Carousel 6 slides — recette emblématique classique
-Rédige le texte exact de chacune des 6 slides (titre + contenu court par
-slide, adapté à un format carré 1080x1080). Structure suggérée :
-1. Titre + accroche
-2. Ingrédients
-3-5. Étapes clés (1-2 par slide)
-6. Astuce du chef, puis une question ouverte à la communauté (écris
-   directement la question, jamais le mot "CTA" ou "astuce + CTA" comme
-   titre de slide — ces termes ne doivent jamais apparaître dans le texte
-   final visible)
+### Texte des 6 slides (pour chaque carousel)
+Structure suggérée :
+1. Titre + accroche (met en avant le produit ET la recette)
+2. Ingrédients clés (pas toute la liste — les 3-4 qui donnent envie)
+3-5. Étapes clés (1-2 par slide, action concrète)
+6. Astuce du chef, puis une question ouverte à la communauté — écris
+   directement la question, jamais le mot "CTA" ni "astuce + CTA"
 
-### 4. Carousel 6 slides — recette créative du chef
-Même structure que ci-dessus, mais basée sur la recette inventée par
-l'Agent Cuisinier. Mets en avant ce qui rend la recette surprenante dans le
-titre/accroche (slide 1).
+---
 
-## Format de sortie attendu — IMPORTANT
+### Légende Instagram (pour chaque carousel/reel)
+- 150 à 200 mots
+- Commence par une accroche tirée de la recette ou du produit (fait
+  nutritionnel, anecdote, sensation gustative)
+- Corps : donne envie de faire la recette sans la décrire étape par étape
+- Termine par une question ouverte écrite directement — jamais le mot "CTA"
+- **SEO Instagram** : intègre naturellement dans le texte 2-3 mots-clés
+  que les gens tapent réellement sur Instagram pour trouver ce type de recette
+  (ex : "recette courgette facile", "dîner d'été rapide"…)
+- **12 hashtags** : mélange équilibré de hashtags larges (500k-5M posts),
+  moyens (50k-500k) et niches (<50k) — tous pertinents pour la recette ET
+  le produit, aucun hashtag générique vide de sens (#food seul, #yummy, etc.)
+
+---
+
+### Légende TikTok (pour chaque carousel/reel)
+- 80 mots maximum
+- Ligne 1 : accroche choc (stat, question, ou affirmation forte) — c'est
+  la seule ligne visible avant "voir plus"
+- Corps : bref, direct, donne envie de regarder jusqu'au bout
+- **SEO TikTok** : 1-2 mots-clés glissés naturellement dans le texte —
+  le moteur de recherche TikTok indexe le texte de la légende
+- **3 à 5 hashtags** : moins que sur Instagram mais plus ciblés — mix
+  hashtag recette + hashtag produit + 1 hashtag trending si pertinent
+
+---
+
+## Format de sortie — IMPORTANT
 Précède CHAQUE section d'un titre Markdown de niveau 2 **exact** (deux
-dièses, un espace, puis le titre, rien d'autre sur la ligne) :
-`## PRODUIT 1 — POST INSTAGRAM`, `## PRODUIT 1 — TIKTOK`,
-`## PRODUIT 1 — CAROUSEL CLASSIQUE (6 slides)`,
-`## PRODUIT 1 — CAROUSEL CRÉATIF (6 slides)`, puis les 4 mêmes titres pour
-PRODUIT 2. Cette sortie est utilisée de deux façons : directement par
-l'Agent Générateur Slides pour produire les visuels (le texte de chaque
-slide doit être exact, final, prêt à l'emploi, pas de placeholder), et
-automatiquement par un programme qui découpe ta réponse sur ces titres
-exacts pour sauvegarder le post Instagram et la légende TikTok de chaque
-produit en fichiers séparés (`produit1_post_instagram.md`,
-`produit1_legende_tiktok.md`, etc.) — **un titre qui ne correspond pas
-exactement au format ci-dessus fait échouer cette sauvegarde
-automatique**, donc ne l'omets jamais et ne le reformule pas.
+dièses, un espace, puis le titre, rien d'autre sur la ligne).
+
+Pour les slides (lus par l'Agent Design pour générer les visuels) :
+- `## PRODUIT 1 — CAROUSEL CLASSIQUE (6 slides)`
+- `## PRODUIT 1 — CAROUSEL CRÉATIF (6 slides)`
+- `## PRODUIT 2 — CAROUSEL CLASSIQUE (6 slides)`
+- `## PRODUIT 2 — CAROUSEL CRÉATIF (6 slides)`
+
+Pour les légendes (sauvegardées automatiquement en fichiers séparés) :
+- `## PRODUIT 1 — CLASSIQUE — INSTAGRAM`
+- `## PRODUIT 1 — CLASSIQUE — TIKTOK`
+- `## PRODUIT 1 — CRÉATIF — INSTAGRAM`
+- `## PRODUIT 1 — CRÉATIF — TIKTOK`
+- `## PRODUIT 2 — CLASSIQUE — INSTAGRAM`
+- `## PRODUIT 2 — CLASSIQUE — TIKTOK`
+- `## PRODUIT 2 — CRÉATIF — INSTAGRAM`
+- `## PRODUIT 2 — CRÉATIF — TIKTOK`
+
+Un titre qui ne correspond pas exactement à ce format fait échouer la
+sauvegarde automatique — ne l'omets jamais et ne le reformule pas.

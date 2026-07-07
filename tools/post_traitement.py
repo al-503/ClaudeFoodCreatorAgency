@@ -82,17 +82,21 @@ def _sauvegarder_sections(texte_brut: str, fichiers_attendus: list, nom_source: 
 
 def sauvegarder_legendes(task_output) -> None:
     """
-    Callback de `tache_redaction` (voir tasks.py) : extrait les 4 légendes
-    (post Instagram + TikTok pour chaque produit) et les écrit directement
-    sur disque, sans appel LLM.
+    Callback de `tache_redaction` (voir tasks.py) : extrait les 8 légendes
+    (Instagram + TikTok pour chacun des 4 carousels) et les écrit sur disque,
+    sans appel LLM.
     """
     _sauvegarder_sections(
         task_output.raw,
         [
-            ("produit1_post_instagram.md", ("PRODUIT 1", "POST INSTAGRAM")),
-            ("produit1_legende_tiktok.md", ("PRODUIT 1", "TIKTOK")),
-            ("produit2_post_instagram.md", ("PRODUIT 2", "POST INSTAGRAM")),
-            ("produit2_legende_tiktok.md", ("PRODUIT 2", "TIKTOK")),
+            ("produit1_classique_instagram.md",  ("PRODUIT 1", "CLASSIQUE", "INSTAGRAM")),
+            ("produit1_classique_tiktok.md",     ("PRODUIT 1", "CLASSIQUE", "TIKTOK")),
+            ("produit1_creatif_instagram.md",    ("PRODUIT 1", "CRÉATIF",   "INSTAGRAM")),
+            ("produit1_creatif_tiktok.md",       ("PRODUIT 1", "CRÉATIF",   "TIKTOK")),
+            ("produit2_classique_instagram.md",  ("PRODUIT 2", "CLASSIQUE", "INSTAGRAM")),
+            ("produit2_classique_tiktok.md",     ("PRODUIT 2", "CLASSIQUE", "TIKTOK")),
+            ("produit2_creatif_instagram.md",    ("PRODUIT 2", "CRÉATIF",   "INSTAGRAM")),
+            ("produit2_creatif_tiktok.md",       ("PRODUIT 2", "CRÉATIF",   "TIKTOK")),
         ],
         "l'Agent Rédaction",
     )
