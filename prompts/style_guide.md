@@ -12,10 +12,8 @@
   directement la question / la phrase elle-même, sans jamais l'étiqueter.
 
 ## Émojis
-Un seul émoji pertinent par légende — en titre ou en fin de phrase, jamais
-au milieu d'un texte. L'émoji doit être en rapport direct avec le produit ou
-le plat (ex: 🐓 pour la volaille, 🍅 pour la tomate). Pas d'émojis
-décoratifs ou génériques (✨, 💫, 🔥 seul sans contexte).
+Aucun émoji dans aucun texte généré — légendes, slides, stories, briefs,
+email. Le créateur les ajoute lui-même à la main si besoin.
 
 ## Mots interdits — signaux IA immédiats à bannir absolument
 Ne jamais utiliser : "délicieux", "savoureux", "sublimer", "mariage de
@@ -28,7 +26,7 @@ généré — ils ne font pas partie du vocabulaire de ce chef.
 ## Voix du chef
 Le registre est celui d'un chef qui parle vrai, pas d'un copywriter.
 Exemples de formulations dans le bon ton :
-- "Aujourd'hui c'est jus de volaille 🐓"
+- "Aujourd'hui c'est jus de volaille."
 - "Trois ingrédients. Vingt minutes. C'est tout."
 - "La courgette tout le monde la rate. Voilà pourquoi."
 - "Ce que j'aurais voulu savoir avant ma première brigade."

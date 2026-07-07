@@ -44,9 +44,9 @@ qui cherche, pas comme un chef qui présente.
 
 **Étape 2 — Première ligne (125 premiers caractères = zone critique)** : c'est
 ce qu'Instagram affiche avant "voir plus" et ce que l'algorithme pondère le
-plus. Elle doit contenir le mot-clé principal + le nom du produit + un émoji
-produit. Style du chef : direct, parlé, jamais pompeux.
-Exemple : "Aujourd'hui c'est recette de courgette rôtie au chèvre 🫛"
+plus. Elle doit contenir le mot-clé principal + le nom du produit. Style du chef :
+direct, parlé, jamais pompeux. Aucun émoji.
+Exemple : "Aujourd'hui c'est recette de courgette rôtie au chèvre."
 
 **Étape 3 — Corps (2-3 phrases max)** : intègre naturellement les 2 autres
 mots-clés. Ne pas les forcer — si la phrase sonne fausse, reformule. Le texte
