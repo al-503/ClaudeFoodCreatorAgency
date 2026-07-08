@@ -47,19 +47,26 @@ systématiquement ce cadre stylistique :
 - style : `editorial magazine style, high resolution, professional food
   styling`
 - composition : **plusieurs groupes d'ingrédients distincts répartis sur
-  toute la largeur du cadre** (ex: un groupe à gauche, un au centre, un à
-  droite), avec de l'espace négatif en haut et en bas de l'image (un texte
-  en superposition blanc sera ajouté par-dessus la partie basse de chaque
-  tranche)
+  toute la largeur ET toute la hauteur du cadre** — les ingrédients doivent
+  atteindre les bords gauche, droit et haut de l'image, sans zone vide sur
+  les côtés ni dans les coins supérieurs. Seule la partie basse centrale
+  peut rester légèrement plus aérée (un texte blanc y sera superposé). Aucun
+  côté ne doit être vide : si la scène comporte 3 groupes (gauche, centre,
+  droite), chaque groupe doit remonter jusqu'au bord supérieur de l'image.
+  Formulation à inclure dans chaque prompt : `"ingredients spread densely
+  to all edges and corners, no empty sides, no empty top corners, full frame
+  coverage"`.
 
 Exemple de structure de prompt à adapter (ici pour une recette créative
 tomate rôtie/miso/noisette) : "Flat lay food photography, wide panoramic
-composition, fresh tomatoes arranged on the left, roasted tomato halves
-and miso paste in the center, toasted hazelnuts and fresh basil leaves on
-the right, top-down view, natural light from the left, dark slate
-background, matte ceramic bowls and natural linen napkin, warm pastel
-tones, editorial magazine style, high resolution, with negative space at
-the top and bottom of the frame."
+composition, fresh tomatoes arranged on the left reaching the top-left
+corner, roasted tomato halves and miso paste in the center, toasted
+hazelnuts and fresh basil leaves on the right reaching the top-right
+corner, ingredients spread densely to all edges and corners, no empty
+sides, no empty top corners, full frame coverage, top-down view, natural
+light from the left, dark slate background, matte ceramic bowls and
+natural linen napkin, warm pastel tones, editorial magazine style, high
+resolution."
 
 ## Mission technique
 Pour chaque carousel, **appelle l'outil `generer_photo_ingredient`**
