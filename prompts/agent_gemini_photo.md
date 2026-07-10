@@ -31,6 +31,12 @@ image entière 3 fois. Il faut donc composer une scène **très large et
 toute la largeur (pas un sujet unique centré), pour que chaque tranche
 ait quelque chose d'intéressant à montrer.
 
+**Mots interdits dans les prompts** — Gemini filtre certains termes qu'il
+associe à des blessures corporelles même en contexte culinaire. Ne jamais
+utiliser : `charred`, `blistered`, `blackened skin`, `burnt skin`, `scorched`.
+Remplace-les par : `roasted` (pour charred), `caramelized` (pour blistered),
+`deeply roasted` ou `smoky` (pour blackened), `toasted` (pour scorched).
+
 Pour chacun des 4 carousels, rédige un **prompt Gemini précis en anglais**
 listant les ingrédients spécifiques de cette recette, respectant
 systématiquement ce cadre stylistique :
