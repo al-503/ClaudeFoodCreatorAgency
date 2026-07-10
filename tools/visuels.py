@@ -233,14 +233,23 @@ def generer_photo_ingredient(prompt_anglais: str, nom_fichier: str) -> str:
         )
 
         donnees_image = None
-        for partie in reponse.candidates[0].content.parts:
-            donnees_inline = getattr(partie, "inline_data", None)
-            if donnees_inline is not None and donnees_inline.data:
-                donnees_image = donnees_inline.data
-                break
+        candidats = getattr(reponse, "candidates", None) or []
+        if candidats:
+            contenu = getattr(candidats[0], "content", None)
+            parties = getattr(contenu, "parts", None) or []
+            for partie in parties:
+                donnees_inline = getattr(partie, "inline_data", None)
+                if donnees_inline is not None and donnees_inline.data:
+                    donnees_image = donnees_inline.data
+                    break
 
         if donnees_image is None:
-            return "ERREUR: Gemini (Nano Banana) n'a retourné aucune image."
+            raison = ""
+            if candidats:
+                finish = getattr(candidats[0], "finish_reason", None)
+                if finish:
+                    raison = f" (finish_reason: {finish})"
+            return f"ERREUR: Gemini n'a retourné aucune image{raison} — prompt peut-être filtré, réessaie avec un prompt plus neutre."
 
         dossier_cible = os.path.join(chemin_dossier_semaine(), "photos_ingredients")
         assurer_dossier(dossier_cible)
