@@ -33,5 +33,12 @@
       "aubergine",
       "cerise"
     ]
+  },
+  {
+    "semaine": "06/07/2026",
+    "produits": [
+      "poivron",
+      "abricot"
+    ]
   }
 ]
