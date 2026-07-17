@@ -40,5 +40,12 @@
       "poivron",
       "abricot"
     ]
+  },
+  {
+    "semaine": "13/07/2026",
+    "produits": [
+      "maïs",
+      "figue"
+    ]
   }
 ]
